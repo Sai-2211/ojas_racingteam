@@ -339,7 +339,6 @@ initSponsors();
 
 /* ============================================================
    PIT LANE SCROLL - SPONSORS SECTION
-   Appended below all existing code. Do not modify above.
    ============================================================ */
 
 (function () {
