@@ -180,17 +180,353 @@ const achData={
   '2018':{results:[{event:'Formula Bharat',location:'Kari Motor Speedway · IN',rank:'3',desc:'3rd Overall in our most successful season',tags:['National Podium']},{event:'FSEV Design Event',location:'Formula Bharat 2018',rank:'5',desc:'A strong showing at the Design Event',tags:['Top 5']},{event:'FSEV Cost Report',location:'Formula Bharat 2018',rank:'1',desc:'The best cost to performance showing ever seen at FB',tags:['Winners']},{event:'FSEV Business Plan Presentation',location:'Formula Bharat 2018',rank:'3',desc:'3rd Overall, continuing our streak at one of the best business plans',tags:['National Podium']}],awards:[]}
 
 };
-function renderAch(yr){
-  const d=achData[yr];if(!d)return;
-  let h=`<div class="sec-lbl" style="margin-bottom:24px">${yr} Season Results</div>`;
-  for(const r of d.results){const rc=r.rank==='1'?'gold':r.rank==='2'?'silver':r.rank==='3'?'bronze':'';const rv=r.rank==='TI'?`<span style="font-size:22px;color:var(--mid)">TI</span>`:r.rank;h+=`<div class="rc"><div><div class="re">${r.event}</div><div class="rl">${r.location}</div></div><div class="rd"><div class="rdesc">${r.desc}</div><div style="margin-top:5px">${r.tags.map(t=>`<span class="rtag">${t}</span>`).join('')}</div></div><div class="rrank"><div class="rrn ${rc}">${rv}</div><div class="rrl">Position</div></div></div>`;}
-  h+=`<div style="margin-top:52px"><div class="sec-lbl">Awards & Recognition</div><div class="aw-grid">`;
-  for(const a of d.awards)h+=`<div class="awc"><div class="awi">${a.icon}</div><div class="awt">${a.title}</div><div class="awb">${a.body}</div></div>`;
-  h+='</div></div>';
-  document.getElementById('ach-display').innerHTML=h;
+
+ function renderAch(yr){
+  const d = achData[yr];
+  if(!d) return;
+
+  const eventHeader = d.results[0];
+
+  let h = `
+    <div class="ach-year-head">
+      ${yr} Season Results
+    </div>
+
+    <div class="ach-event-head">
+      <div class="ach-event-title">${eventHeader.event}</div>
+      <div class="ach-event-loc">${eventHeader.location}</div>
+    </div>
+
+    <div class="ach-cards">
+  `;
+
+  d.results.forEach((r,i)=>{
+
+    let accent = 'blue';
+
+    if(r.rank === '1') accent = 'gold';
+    else if(r.rank === '2') accent = 'silver';
+    else if(r.rank === '3') accent = 'bronze';
+
+    h += `
+      <div class="ach-card ${accent}" onclick="toggleAchCard(this)">
+        
+        <div class="ach-card-inner">
+
+          <div class="ach-front">
+
+            <div class="ach-watermark">
+              ${r.rank}
+            </div>
+
+            <div class="ach-title">
+              ${r.event}
+            </div>
+
+            <div class="ach-rank">
+              ${r.rank}
+            </div>
+
+            <div class="ach-rank-text">
+              POSITION
+            </div>
+
+            <div class="ach-hint">
+              Click for details →
+            </div>
+
+          </div>
+
+          <div class="ach-back">
+
+            <div class="ach-back-title">
+              ${r.event}
+            </div>
+
+            <div class="ach-back-desc">
+              ${r.desc}
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    `;
+  });
+
+  h += `
+    </div>
+  `;
+
+  if(d.awards.length){
+
+    h += `
+      <div class="ach-awards-sec">
+
+        <div class="sec-lbl">
+          Awards & Recognition
+        </div>
+
+        <div class="aw-grid">
+    `;
+
+    d.awards.forEach(a=>{
+      h += `
+        <div class="awc">
+          <div class="awi">${a.icon}</div>
+          <div class="awt">${a.title}</div>
+          <div class="awb">${a.body}</div>
+        </div>
+      `;
+    });
+
+    h += `
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('ach-display').innerHTML = h;
+}
+function toggleAchCard(card){
+
+  const open = document.querySelector('.ach-card.flipped');
+
+  if(open && open !== card){
+    open.classList.remove('flipped');
+  }
+
+  card.classList.toggle('flipped');
 }
 function switchAch(el,yr){document.querySelectorAll('#ach-tabs .ytab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderAch(yr);}
 
 const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.1});
 document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
 renderTeam('2026');renderAch('2025');
+function toggleSponsor(card){
+
+  const open = document.querySelector('.scard.flipped');
+
+  if(open && open !== card){
+    open.classList.remove('flipped');
+  }
+
+  card.classList.toggle('flipped');
+}
+const sponsorObserver = new IntersectionObserver(entries=>{
+
+  entries.forEach(entry=>{
+
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+    }
+
+  });
+
+},{threshold:.35});
+
+function initSponsors(){
+
+  document.querySelectorAll('.sponsor-card').forEach(card=>{
+
+    sponsorObserver.observe(card);
+
+  });
+
+}
+initSponsors();
+
+/* ============================================================
+   PIT LANE SCROLL - SPONSORS SECTION
+   Appended below all existing code. Do not modify above.
+   ============================================================ */
+
+(function () {
+
+  const pitContainer = document.getElementById('pit-scroll-container');
+  if (!pitContainer) return;
+
+  const pitLeftStrip = document.getElementById('pit-strip-left');
+  const pitRightStrip = document.getElementById('pit-strip-right');
+  const pitRoadSurf = document.getElementById('pit-road-surface');
+  const pitCenterDash = document.getElementById('pit-road-center-dash');
+  const pitScrollHint = document.getElementById('pit-scroll-hint');
+  const pitCurrentPair = document.getElementById('pit-current-pair');
+  const pitNameLeft = document.getElementById('pit-name-left');
+  const pitNameRight = document.getElementById('pit-name-right');
+  const pitLeftBanners = pitLeftStrip ? Array.from(pitLeftStrip.querySelectorAll('.pit-banner')) : [];
+  const pitRightBanners = pitRightStrip ? Array.from(pitRightStrip.querySelectorAll('.pit-banner')) : [];
+
+  if (
+    !pitLeftStrip ||
+    !pitRightStrip ||
+    !pitRoadSurf ||
+    !pitCenterDash ||
+    !pitScrollHint ||
+    !pitCurrentPair ||
+    !pitNameLeft ||
+    !pitNameRight ||
+    !pitLeftBanners.length ||
+    pitLeftBanners.length !== pitRightBanners.length
+  ) return;
+
+  const pitPairNames = pitLeftBanners.map(function (banner, index) {
+    return {
+      left: banner.dataset.name || '',
+      right: pitRightBanners[index].dataset.name || ''
+    };
+  });
+
+  let pitRAF;
+  let pitActive = false;
+  let pitViewportHeight = window.innerHeight;
+  let pitHorizonY = pitViewportHeight * 0.365;
+  let pitNearZoneY = pitViewportHeight * 0.65;
+  let pitExitZoneY = pitViewportHeight * 1.08;
+  let pitBannerStep = pitViewportHeight * 0.24;
+  let pitTravel = 0;
+  let pitRoadOffset = 0;
+  let pitRoadSpeed = 0;
+  let pitLastProgress = 0;
+  let pitLastFrameTime = performance.now();
+
+  function pitGetProgress() {
+    const rect = pitContainer.getBoundingClientRect();
+    const scrolled = -rect.top;
+    const total = pitContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrolled / total));
+  }
+
+  function pitClamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function pitSetBannerRows() {
+    const horizonValue = parseFloat(getComputedStyle(pitContainer).getPropertyValue('--pit-horizon')) || 36.5;
+    const bannerHeight = pitLeftBanners[0].offsetHeight || 120;
+
+    pitViewportHeight = window.innerHeight;
+    pitHorizonY = pitViewportHeight * (horizonValue / 100);
+    pitNearZoneY = pitViewportHeight * 0.65;
+    pitExitZoneY = pitViewportHeight * 1.08;
+    pitBannerStep = pitViewportHeight * (pitViewportHeight <= 720 ? 0.48 : 0.55);
+    pitTravel = (pitExitZoneY - pitHorizonY) + (pitBannerStep * (pitLeftBanners.length - 1));
+
+    pitLeftBanners.forEach(function (banner, index) {
+      banner.style.top = `${(pitHorizonY - (bannerHeight / 2)) - (index * pitBannerStep)}px`;
+    });
+
+    pitRightBanners.forEach(function (banner, index) {
+      banner.style.top = `${(pitHorizonY - (bannerHeight / 2)) - (index * pitBannerStep)}px`;
+    });
+  }
+
+  function pitOpacityForCenter(centerY) {
+    const fadeInStart = pitHorizonY - (pitViewportHeight * 0.08);
+    const fadeInEnd = pitHorizonY + (pitViewportHeight * 0.16);
+    const fadeOutStart = pitViewportHeight * 0.92;
+
+    if (centerY <= fadeInStart || centerY >= pitExitZoneY) return 0;
+    if (centerY < fadeInEnd) return pitClamp((centerY - fadeInStart) / (fadeInEnd - fadeInStart), 0, 1);
+    if (centerY <= fadeOutStart) return 1;
+    return pitClamp(1 - ((centerY - fadeOutStart) / (pitExitZoneY - fadeOutStart)), 0, 1);
+  }
+
+  function pitPaint(now) {
+    const p = pitGetProgress();
+    const dt = Math.max(16, now - pitLastFrameTime);
+    const progressDelta = p - pitLastProgress;
+    const travelY = p * pitTravel;
+    const velocityTarget = Math.min(8, Math.abs(progressDelta) * 600);
+
+    pitLeftStrip.style.transform = `translateY(${travelY}px)`;
+    pitRightStrip.style.transform = `translateY(${travelY}px)`;
+
+    if (Math.abs(progressDelta) > 0.00015) {
+      pitRoadSpeed += (velocityTarget - pitRoadSpeed) * 0.28;
+    } else {
+      pitRoadSpeed *= 0.92;
+    }
+
+    pitRoadOffset = (pitRoadOffset + (pitRoadSpeed * (dt / 16))) % 360;
+    pitRoadSurf.style.backgroundPositionY = `${pitRoadOffset}px`;
+    pitCenterDash.style.backgroundPositionY = `${pitRoadOffset * 1.32}px`;
+    pitScrollHint.style.opacity = p < 0.045 ? '1' : '0';
+
+    let showingPair = -1;
+    let showingStrength = 0;
+
+    pitLeftBanners.forEach(function (leftBanner, index) {
+      const rightBanner = pitRightBanners[index];
+      const rect = leftBanner.getBoundingClientRect();
+      const centerY = rect.top + (rect.height / 2);
+      const depth = Math.max(0, (centerY - pitHorizonY) / (pitNearZoneY - pitHorizonY));
+      const size = 0.28 + (Math.pow(depth, 0.9) * 0.88);
+      const maxShift = window.innerWidth * 0.23;
+      const lateralShift = (1 - depth) * maxShift;
+      const introFade = pitClamp(p / 0.02, 0, 1);
+      const opacity = pitOpacityForCenter(centerY) * introFade;
+      const fadeFilter = 1.0 + (depth * 0.45);
+      const labelStrength = opacity * (1 - pitClamp(Math.abs(centerY - pitNearZoneY) / (pitViewportHeight * 0.2), 0, 1));
+
+      leftBanner.style.transform = `translateX(${lateralShift}px) scale(${size})`;
+      rightBanner.style.transform = `translateX(${-lateralShift}px) scale(${size})`;
+      leftBanner.style.opacity = opacity.toFixed(3);
+      rightBanner.style.opacity = opacity.toFixed(3);
+      leftBanner.style.filter = `brightness(${fadeFilter.toFixed(3)})`;
+      rightBanner.style.filter = `brightness(${fadeFilter.toFixed(3)})`;
+      leftBanner.style.pointerEvents = opacity > 0.14 ? 'auto' : 'none';
+      rightBanner.style.pointerEvents = opacity > 0.14 ? 'auto' : 'none';
+      leftBanner.style.zIndex = String(100 + Math.round(centerY));
+      rightBanner.style.zIndex = String(100 + Math.round(centerY));
+
+      if (labelStrength > showingStrength) {
+        showingStrength = labelStrength;
+        showingPair = index;
+      }
+    });
+
+    if (showingPair >= 0 && showingStrength > 0.28) {
+      const names = pitPairNames[showingPair];
+      pitNameLeft.textContent = names.left;
+      pitNameRight.textContent = names.right;
+      pitCurrentPair.style.opacity = showingStrength.toFixed(3);
+    } else {
+      pitCurrentPair.style.opacity = '0';
+    }
+
+    pitLastProgress = p;
+    pitLastFrameTime = now;
+  }
+
+  function pitFrame(now) {
+    if (!pitActive) return;
+    pitPaint(now);
+    pitRAF = requestAnimationFrame(pitFrame);
+  }
+
+  function pitRefresh() {
+    pitSetBannerRows();
+    pitPaint(performance.now());
+  }
+
+  const pitObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      pitActive = entry.isIntersecting;
+      if (pitActive) {
+        pitLastProgress = pitGetProgress();
+        pitLastFrameTime = performance.now();
+        pitRAF = requestAnimationFrame(pitFrame);
+      } else {
+        cancelAnimationFrame(pitRAF);
+      }
+    });
+  }, { threshold: 0 });
+
+  window.addEventListener('resize', pitRefresh);
+  pitRefresh();
+  pitObserver.observe(pitContainer);
+
+})();
+
